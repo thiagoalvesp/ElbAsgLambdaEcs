@@ -1,0 +1,31 @@
+# Arquivos de compilação Go
+*.o
+*.a
+*.out
+
+# Arquivos binários
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Arquivos gerados pelo Go
+/_test/
+/_testmain.go
+_testmain.go
+/test.output
+
+# Diretório de binários (onde 'go install' coloca executáveis)
+/bin/
+
+# Diretório de dependências gerado por 'go get'
+/pkg/
+
+# Diretório de cache do Go
+/.cache/
+
+# Arquivos temporários
+*.swp
+*~
+.vscode/
+.idea/
