@@ -1,0 +1,35 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Exemplo de criação de uma função Lambda usando CloudFormation
+Resources:
+  MyLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: MinhaFuncaoLambda
+      Handler: simpleapi
+      Role: !GetAtt MyLambdaExecutionRole.Arn
+      Code:
+        S3Bucket: simpleapi-go-code
+        S3Key: simpleapi-go-code-files.zip
+      Runtime: go1.x  # Substitua pelo runtime desejado, como python3.8, go1.x, etc.
+  MyLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: MinhaFuncaoLambdaRole
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: LambdaExecutionPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: arn:aws:logs:*:*:*
