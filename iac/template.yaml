@@ -33,3 +33,9 @@ Resources:
         S3Bucket: simpleapi-go-code
         S3Key: simpleapi-go-code-files.zip
       Runtime: go1.x  # Substitua pelo runtime desejado, como python3.8, go1.x, etc.
+
+
+
+#Security group
+
+#ALB

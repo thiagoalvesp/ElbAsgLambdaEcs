@@ -36,7 +36,7 @@ go build .
 aws s3 mb s3://simpleapi-go-code
 
 powershell
-Compress-Archive -Force -Path "C:\Users\thiag\Desktop\ElbAsgLambdaEcs\code\simpleapi" -DestinationPath "C:\Users\thiag\Desktop\ElbAsgLambdaEcs\iac\simpleapi-go-code-files.zip"
+Compress-Archive -Force -Path "C:\Users\thiag\Desktop\ElbAsgLambdaEcs\code\code" -DestinationPath "C:\Users\thiag\Desktop\ElbAsgLambdaEcs\iac\code.zip"
 exit
 
 aws s3 cp C:\Users\thiag\Desktop\ElbAsgLambdaEcs\iac\simpleapi-go-code-files.zip s3://simpleapi-go-code
