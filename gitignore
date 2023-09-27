@@ -1,14 +1,14 @@
 # Arquivos de compilação Go
-*.o
-*.a
-*.out
+**/*.o
+**/*.a
+**/*.out
 
 # Arquivos binários
-*.exe
-*.dll
-*.so
-*.dylib
-*.zip
+**/*.exe
+**/*.dll
+**/*.so
+**/*.dylib
+**/*.zip
 
 # Arquivos gerados pelo Go
 /_test/
