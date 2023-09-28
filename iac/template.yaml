@@ -28,14 +28,110 @@ Resources:
     Properties:
       FunctionName: MinhaFuncaoLambda
       Handler: simpleapi
-      Role: !GetAtt MyLambdaExecutionRole.Arn
+      Role: !Ref MyLambdaExecutionRole
       Code:
         S3Bucket: simpleapi-go-code
         S3Key: simpleapi-go-code-files.zip
-      Runtime: go1.x  # Substitua pelo runtime desejado, como python3.8, go1.x, etc.
+      Runtime: go1.x  
+  myVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 172.31.0.0/16
+      EnableDnsSupport: true
+      Tags:
+        - Key: Project
+          Value: SimpleApi
+  MysubnetAzA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: sae1-az1
+      VpcId: !GetAtt myVPC.Id
+      CidrBlock: 172.31.0.0/20
+      Tags:
+        - Key: Project
+          Value: SimpleApi
+  MysubnetAzB:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: sae1-az2
+      VpcId: !GetAtt myVPC.Id
+      CidrBlock: 172.31.16.0/20
+      Tags:
+        - Key: Project
+          Value: SimpleApi
+  MysubnetAzC:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: sae1-az3
+      VpcId: !GetAtt myVPC.Id
+      CidrBlock: 172.31.32.0/20
+      Tags:
+        - Key: Project
+          Value: SimpleApi
+  MySecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: "SimpleApiSecurityGroupALB"
+      GroupDescription: "SecurityGroup of ALB"
+      VpcId: !GetAtt myVPC.Id
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0 
+      SecurityGroupEgress:
+        -  IpProtocol: '-1'
+           FromPort: 0
+           ToPort: 65535
+           CidrIp: 0.0.0.0/0 
+      Tags:
+        - Key: Project
+          Value: SimpleApi
+  #ALB
+  MyLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Subnets:
+        - !GetAtt MysubnetAzA.Id
+        - !GetAtt MysubnetAzB.Id
+        - !GetAtt MysubnetAzC.Id
+      SecurityGroups:
+        -  !GetAtt MySecurityGroup.Id
 
+  MyTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Port: 80
+      Protocol: HTTP
+      VpcId: !GetAtt myVPC.Id
+      
 
+  MyListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - Type: fixed-response
+          FixedResponseConfig:
+            ContentType: text/plain
+            StatusCode: "200"
+            MessageBody: "OK"
+      LoadBalancerArn: !Ref MyLoadBalancer
+      Port: 80
+      Protocol: HTTP
 
-#Security group
-
-#ALB
+  MyListenerRule:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      Actions:
+        - Type: fixed-response
+          TargetGroupArn: !Ref MyTargetGroup
+          FixedResponseConfig:
+            StatusCode: "200"
+      Conditions:
+        - Field: path-pattern
+          PathPatternConfig:
+            Values:
+              - /
+      ListenerArn: !Ref MyListener
+      Priority: 1
+     
