@@ -1,39 +1,42 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 Description: Exemplo de criação de uma função Lambda usando CloudFormation
 Resources:
-  MyLambdaExecutionRole:
-    Type: AWS::IAM::Role
-    Properties:
-      RoleName: MinhaFuncaoLambdaRole
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: lambda.amazonaws.com
-            Action: sts:AssumeRole
-      Policies:
-        - PolicyName: LambdaExecutionPolicy
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - logs:CreateLogGroup
-                  - logs:CreateLogStream
-                  - logs:PutLogEvents
-                Resource: arn:aws:logs:*:*:*
-  MyLambdaFunction:
-    Type: AWS::Lambda::Function
-    Properties:
-      FunctionName: MinhaFuncaoLambda
-      Handler: simpleapi
-      Role: !Ref MyLambdaExecutionRole
-      Code:
-        S3Bucket: simpleapi-go-code
-        S3Key: simpleapi-go-code-files.zip
-      Runtime: go1.x  
-  myVPC:
+  # MyLambdaExecutionRole:
+  #   Type: AWS::IAM::Role
+  #   Properties:
+  #     RoleName: MinhaFuncaoLambdaRole
+  #     AssumeRolePolicyDocument:
+  #       Version: '2012-10-17'
+  #       Statement:
+  #         - Effect: Allow
+  #           Principal:
+  #             Service: lambda.amazonaws.com
+  #           Action: sts:AssumeRole
+  #     Policies:
+  #       - PolicyName: LambdaExecutionPolicy
+  #         PolicyDocument:
+  #           Version: '2012-10-17'
+  #           Statement:
+  #             - Effect: Allow
+  #               Action:
+  #                 - logs:CreateLogGroup
+  #                 - logs:CreateLogStream
+  #                 - logs:PutLogEvents
+  #               Resource: arn:aws:logs:*:*:*
+  # MyLambdaFunction:
+  #   Type: AWS::Lambda::Function
+  #   Properties:
+  #     FunctionName: MinhaFuncaoLambda
+  #     Handler: simpleapi
+  #     Role: !Ref MyLambdaExecutionRole
+  #     Code:
+  #       S3Bucket: simpleapi-go-code
+  #       S3Key: simpleapi-go-code-files.zip
+  #     Runtime: go1.x
+
+
+
+  MyVPC:
     Type: AWS::EC2::VPC
     Properties:
       CidrBlock: 172.31.0.0/16
@@ -41,11 +44,30 @@ Resources:
       Tags:
         - Key: Project
           Value: SimpleApi
+
+  #Internet Gateway and Attach to VPC
+  MyInternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+      - Key: stack
+        Value: production
+
+  
+  MyAttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref MyVPC
+      InternetGatewayId: !Ref MyInternetGateway
+
+
+  #Route Tables
+
   MysubnetAzA:
     Type: AWS::EC2::Subnet
     Properties:
-      AvailabilityZone: sae1-az1
-      VpcId: !GetAtt myVPC.Id
+      AvailabilityZone: sa-east-1a
+      VpcId: !Ref MyVPC
       CidrBlock: 172.31.0.0/20
       Tags:
         - Key: Project
@@ -53,8 +75,8 @@ Resources:
   MysubnetAzB:
     Type: AWS::EC2::Subnet
     Properties:
-      AvailabilityZone: sae1-az2
-      VpcId: !GetAtt myVPC.Id
+      AvailabilityZone: sa-east-1b
+      VpcId: !Ref MyVPC
       CidrBlock: 172.31.16.0/20
       Tags:
         - Key: Project
@@ -62,8 +84,8 @@ Resources:
   MysubnetAzC:
     Type: AWS::EC2::Subnet
     Properties:
-      AvailabilityZone: sae1-az3
-      VpcId: !GetAtt myVPC.Id
+      AvailabilityZone: sa-east-1c
+      VpcId: !Ref MyVPC
       CidrBlock: 172.31.32.0/20
       Tags:
         - Key: Project
@@ -73,17 +95,17 @@ Resources:
     Properties:
       GroupName: "SimpleApiSecurityGroupALB"
       GroupDescription: "SecurityGroup of ALB"
-      VpcId: !GetAtt myVPC.Id
+      VpcId: !Ref MyVPC
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 80
           ToPort: 80
-          CidrIp: 0.0.0.0/0 
+          CidrIp: 0.0.0.0/0
       SecurityGroupEgress:
-        -  IpProtocol: '-1'
-           FromPort: 0
-           ToPort: 65535
-           CidrIp: 0.0.0.0/0 
+        - IpProtocol: "-1"
+          FromPort: 0
+          ToPort: 65535
+          CidrIp: 0.0.0.0/0
       Tags:
         - Key: Project
           Value: SimpleApi
@@ -92,19 +114,18 @@ Resources:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
       Subnets:
-        - !GetAtt MysubnetAzA.Id
-        - !GetAtt MysubnetAzB.Id
-        - !GetAtt MysubnetAzC.Id
+        - !Ref MysubnetAzA
+        - !Ref MysubnetAzB
+        - !Ref MysubnetAzC
       SecurityGroups:
-        -  !GetAtt MySecurityGroup.Id
+        - !Ref MySecurityGroup
 
   MyTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
       Port: 80
       Protocol: HTTP
-      VpcId: !GetAtt myVPC.Id
-      
+      VpcId: !Ref MyVPC
 
   MyListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
@@ -134,4 +155,3 @@ Resources:
               - /
       ListenerArn: !Ref MyListener
       Priority: 1
-     
