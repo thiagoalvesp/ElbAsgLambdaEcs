@@ -1,116 +1,78 @@
 package main
 
 import (
-	"fmt"
+	"context"
 	"log"
-	"net/http"
 	"os"
 
+	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/awslabs/aws-lambda-go-api-proxy/gorillamux"
-	"github.com/bitly/go-simplejson"
-	"github.com/gorilla/mux"
+	ginadapter "github.com/awslabs/aws-lambda-go-api-proxy/gin"
+	"github.com/gin-gonic/gin"
 )
-
-type MessageResponse struct {
-	Counter int64
-}
-
-func loggingMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Println("loggingMiddleware")
-		log.Println(r.RequestURI)
-		next.ServeHTTP(w, r)
-	})
-}
-
-func CounterHandler(w http.ResponseWriter, r *http.Request) {
-
-	json := simplejson.New()
-	json.Set("Counter", 30)
-
-	payload, err := json.MarshalJSON()
-	if err != nil {
-		log.Println(err)
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(payload)
-
-}
-
-func AddCounterHandler(w http.ResponseWriter, r *http.Request) {
-
-	json := simplejson.New()
-	json.Set("Counter", 10)
-
-	payload, err := json.MarshalJSON()
-	if err != nil {
-		log.Println(err)
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(payload)
-
-}
 
 func main() {
 
-	r := mux.NewRouter()
-	r.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Println("Not found", r.RequestURI)
-		http.Error(w, fmt.Sprintf("Not found: %s", r.RequestURI), http.StatusNotFound)
+	log.Printf("Gin cold start")
+	r := gin.Default()
+	r.GET("/", func(c *gin.Context) {
+		log.Printf("chegou no healthy")
+		c.JSON(200, gin.H{
+			"message": "healthy",
+		})
+	})
+	r.GET("/ping", func(c *gin.Context) {
+		log.Printf("chegou no ping")
+		c.JSON(200, gin.H{
+			"message": "pong",
+		})
+	})
+	r.GET("/pong", func(c *gin.Context) {
+		log.Printf("chegou no pong")
+		c.JSON(200, gin.H{
+			"message": "ping",
+		})
 	})
 
-	r.HandleFunc("/add", AddCounterHandler)
-	r.HandleFunc("/", CounterHandler)
-
-	r.Use(loggingMiddleware)
-
 	if runtime_api, _ := os.LookupEnv("AWS_LAMBDA_RUNTIME_API"); runtime_api != "" {
-		log.Println("Starting up in Lambda Runtime")
-		adapter := gorillamux.NewALB(r)
-		lambda.Start(adapter.ProxyWithContext)
+		log.Println("Starting up in Lambda Runtime gin")
+		ginLambda := ginadapter.NewALB(r)
+		lambda.Start(func(ctx context.Context, req events.ALBTargetGroupRequest) (events.ALBTargetGroupResponse, error) {
+			log.Printf(req.Path)
+			evalbresponse, _ := ginLambda.ProxyWithContext(ctx, req)
+			//headers vazio da erro no alb
+			headers := make(map[string]string)
+			headers["Content-Type"] = "application/json"
+			evalbresponse.Headers = headers
+			return evalbresponse, nil
+
+		})
 	} else {
 		log.Println("Starting up on own")
-		srv := &http.Server{
-			Addr:    ":8080",
-			Handler: r,
-		}
-		_ = srv.ListenAndServe()
+		r.Run()
 	}
 
 }
 
-// func handler(request events.ALBTargetGroupRequest) (
-// 	events.ALBTargetGroupResponse, error) {
+//to do
+// estudar os meios de balanceamento
 
-// 	fmt.Println("Start Proccess")
+// configurar o gateway para bater no alb via vpc link
+//criar o vpc link
+//api rest
+//atribuir para o vpc
+// integracao com o loadbalancer
+// atribuir a lambda para vpc *
 
-// 	fmt.Println("Body")
-// 	fmt.Println(request.Body)
+// jmeter
+// criar um redirecionamento para o ecs
+// fazer a app em container
+// subir o ecs
+// configurar os eventos para desligar ou ligar o ecs pela metrica da lambda
 
-// 	messageResponse := MessageResponse{Counter: 0}
-// 	jsonMessageResponse, err := json.Marshal(messageResponse)
-// 	jsonMessageResponseString := string(jsonMessageResponse)
+// cloudformation
+// documentação
 
-// 	if err != nil {
-// 		fmt.Println("Erro ao codificar para JSON:", err)
-// 		response := events.ALBTargetGroupResponse{
-// 			StatusCode: 500,
-// 		}
-// 		return response, err
-// 	}
+//http://meuloadbalancer-1598794745.sa-east-1.elb.amazonaws.com/
 
-// 	headers := make(map[string]string)
-// 	headers["Content-Type"] = "application/json"
-
-// 	response := events.ALBTargetGroupResponse{
-// 		StatusCode:      200,
-// 		Body:            jsonMessageResponseString,
-// 		IsBase64Encoded: false,
-// 		Headers:         headers,
-// 	}
-
-// 	return response, nil
-// }
+//go melhorar o código e fazer teste unitário
