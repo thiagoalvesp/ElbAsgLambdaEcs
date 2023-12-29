@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"os"
+	"time"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -17,14 +18,17 @@ func main() {
 	r := gin.Default()
 	r.GET("/", func(c *gin.Context) {
 		log.Printf("chegou no healthy")
+
+		time.Sleep(15 * time.Second)
+
 		c.JSON(200, gin.H{
 			"message": "healthy",
 		})
 	})
-	r.GET("/ping", func(c *gin.Context) {
-		log.Printf("chegou no ping")
+	r.GET("/bang", func(c *gin.Context) {
+		log.Printf("chegou no bang")
 		c.JSON(200, gin.H{
-			"message": "pong",
+			"message": "boom",
 		})
 	})
 	r.GET("/pong", func(c *gin.Context) {
@@ -32,6 +36,29 @@ func main() {
 		c.JSON(200, gin.H{
 			"message": "ping",
 		})
+	})
+
+	r.GET("/sleep", func(c *gin.Context) {
+		log.Printf("chegou no sleep")
+
+		time.Sleep(15 * time.Second)
+
+		c.JSON(200, gin.H{
+			"message": "awaken",
+		})
+	})
+
+	r.GET("/env", func(c *gin.Context) {
+		log.Printf("chegou no sleep")
+		if runtime_api, _ := os.LookupEnv("AWS_LAMBDA_RUNTIME_API"); runtime_api != "" {
+			c.JSON(200, gin.H{
+				"message": "lambda",
+			})
+		} else {
+			c.JSON(200, gin.H{
+				"message": "server",
+			})
+		}
 	})
 
 	if runtime_api, _ := os.LookupEnv("AWS_LAMBDA_RUNTIME_API"); runtime_api != "" {
@@ -76,3 +103,9 @@ func main() {
 //http://meuloadbalancer-1598794745.sa-east-1.elb.amazonaws.com/
 
 //go melhorar o código e fazer teste unitário
+
+//aws ecr get-login-password --region sa-east-1 | docker login --username AWS --password-stdin 281303628498.dkr.ecr.sa-east-1.amazonaws.com
+// docker build -t golangapppbangpong .
+// docker tag golangapppbangpong:latest 281303628498.dkr.ecr.sa-east-1.amazonaws.com/golangapppbangpong:latest
+// docker push 281303628498.dkr.ecr.sa-east-1.amazonaws.com/golangapppbangpong:latest
+// 281303628498.dkr.ecr.sa-east-1.amazonaws.com/golangapppbangpong
