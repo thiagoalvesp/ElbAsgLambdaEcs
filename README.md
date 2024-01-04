@@ -5,27 +5,30 @@ O que você vai encontrar nesse material:
 - Desenho de Solução
   
 
-- Diferença entre a url pré assinada Cloudfront e a url pré assinada do S3
-- Componentes necessários na AWS
-- Criando o Bucket S3
-- Criando o CloudFront
-- Criando a chave rsa publica e privada 
-- Configurando a chave no CloudFront
-- Diferença entre CannedSignedURL e CustomSignedURL
-- Utilizando o SDK AWS .Net
-- Implementação do CannedSignedURL
-- Implementação do CustomSignedURL
-
+- Código da aplicação
+- Deploy Lambda
+- Deploy Imagem Docker
+- Configuração ECS
+- Configuração ALB para Lambda
+- Configuração Cloud Watch Alarm
+- Configuracão Event Bridge
+- Criacão da lambda para provisionamento e ajuste no ALB
+- Teste no Jmeter
 - Conclusão
 - Fontes
 
 ### Objetivo
 
-O objetivo dessa prova conceito é mostrar que podemos ter um ambiente com lambdas (serveless) sem se preocupar com os hard limits da aws sendo apoiado pelo ecs fargate compartilhando a mesma base de código da aplicação. 
+O objetivo dessa prova conceito é mostrar que podemos ter um ambiente com lambdas (serveless) para hospedar uma web api sem se preocupar com os hard limits pois podemos usar ecs fargate compartilhando a mesma base de código da aplicação como redundância. 
 
 ### Desenho de Solução
 ![image](https://github.com/thiagoalvesp/ElbAsgLambdaEcs/assets/10868308/0abe2073-ac9e-4c53-a9c0-c81a91dde261)
 
+
+### Código da aplicação
+
+
+---
 
 ### Diferença entre a url pré assinada Cloudfront e a url pré assinada do S3
 
