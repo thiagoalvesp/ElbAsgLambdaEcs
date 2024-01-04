@@ -20,10 +20,12 @@ O que você vai encontrar nesse material:
 - Fontes
 
 ### Objetivo
-    O objetivo dessa prova conceito é mostrar que podemos ter um ambiente com lambdas (serveless) sem se preocupar com os hard limits da aws sendo apoiado pelo ecs fargate compartilhando a mesma base de código da aplicação. 
+
+O objetivo dessa prova conceito é mostrar que podemos ter um ambiente com lambdas (serveless) sem se preocupar com os hard limits da aws sendo apoiado pelo ecs fargate compartilhando a mesma base de código da aplicação. 
 
 ### Desenho de Solução
-![image](https://github.com/thiagoalvesp/ElbAsgLambdaEcs/assets/10868308/721b6063-e346-40dc-a36a-5cc93e2938c3)
+![image](https://github.com/thiagoalvesp/ElbAsgLambdaEcs/assets/10868308/0abe2073-ac9e-4c53-a9c0-c81a91dde261)
+
 
 ### Diferença entre a url pré assinada Cloudfront e a url pré assinada do S3
 
