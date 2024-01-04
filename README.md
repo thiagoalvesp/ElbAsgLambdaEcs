@@ -2,6 +2,8 @@
 
 O que você vai encontrar nesse material:
 - Objetivo
+- Desenho de Solução
+  
 
 - Diferença entre a url pré assinada Cloudfront e a url pré assinada do S3
 - Componentes necessários na AWS
@@ -18,9 +20,11 @@ O que você vai encontrar nesse material:
 - Fontes
 
 ### Objetivo
+    O objetivo dessa prova conceito é mostrar que podemos ter um ambiente com lambdas (serveless) sem se preocupar com os hard limits da aws sendo apoiado pelo ecs fargate compartilhando a mesma base de código da aplicação. 
 
+### Desenho de Solução
+![image](https://github.com/thiagoalvesp/ElbAsgLambdaEcs/assets/10868308/721b6063-e346-40dc-a36a-5cc93e2938c3)
 
-    
 ### Diferença entre a url pré assinada Cloudfront e a url pré assinada do S3
 
 Antes de iniciar é valido lembra que o S3 possui uma funcionalidade parecida que é focada nos objetos de forma granular(criar, alterar e download) enquanto o CloudFront foca na distribuição de conteúdo não se limitando ao S3 como origem.
