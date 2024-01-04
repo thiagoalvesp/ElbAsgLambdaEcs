@@ -1,0 +1,32 @@
+{
+	"Version": "2012-10-17",
+	"Statement": [
+		{
+			"Sid": "VisualEditor0",
+			"Effect": "Allow",
+			"Action": [
+				"elasticloadbalancing:ModifyListener",
+				"ecs:UpdateService"
+			],
+			"Resource": [
+				"*",
+				"arn:aws:ecs:sa-east-1:281303628498:service/AlbECSCluster/servicegoapp"
+			]
+		},
+		{
+			"Sid": "VisualEditor1",
+			"Effect": "Allow",
+			"Action": "logs:CreateLogGroup",
+			"Resource": "arn:aws:logs:sa-east-1:281303628498:*"
+		},
+		{
+			"Sid": "VisualEditor2",
+			"Effect": "Allow",
+			"Action": [
+				"logs:CreateLogStream",
+				"logs:PutLogEvents"
+			],
+			"Resource": "arn:aws:logs:sa-east-1:281303628498:log-group:/aws/lambda/ProvisionaInstaciaECS:*"
+		}
+	]
+}
