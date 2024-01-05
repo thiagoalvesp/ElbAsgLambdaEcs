@@ -247,6 +247,20 @@ Recomendo para criar o Aplication Load Balancer junto com o serviço pois a AWS 
 
 Nesse estágio estamos com a aplicação publicada na lambda e no ECS, porém o ecs não possui containers rodando pois colocamos as Tarefas desejadas como 0.
 
+### Configuração ALB para Lambda
+Como criamos o ALB junto com o ECS, agora precisamos criar um target group para lambda para ser atribuido ao listener do ALB.
+
+![image](https://github.com/thiagoalvesp/ElbAsgLambdaEcs/assets/10868308/e0120a52-c8ff-4a36-9bc7-e063c3b9993d)
+
+![image](https://github.com/thiagoalvesp/ElbAsgLambdaEcs/assets/10868308/b687d203-50a8-48bc-aba3-8f68c72f66bd)
+
+Nesse ponto a load balancer vai direcionar as requisições para lambda por conta do peso.
+
+O peso funciona da seguinte forma quando estiver 0 o load balancer vai ignorar aquele target group se ambos estiverem com 1 as requisições serão dividas 50%/50%.
+
+### Configuração Cloud Watch Alarm
+
+
 ### Conclusão
 
 Fica claro que podemos utilizar o ecs fargate para suportar as requisições extras da lambda.
