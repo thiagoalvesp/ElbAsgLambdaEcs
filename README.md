@@ -6,7 +6,7 @@ O que você vai encontrar nesse material:
 - Componentes necessários na AWS
 - Código da aplicação
 - Deploy Lambda
-- Deploy Imagem Docker
+- Deploy Imagem Docker no ECR
 - Configuração ECS
 - Configuração ALB para Lambda
 - Configuração Cloud Watch Alarm
@@ -28,6 +28,7 @@ O objetivo dessa prova conceito é mostrar que podemos ter um ambiente com lambd
 Para essa prova de conceito é necessário: 
 - Conta aws (free tier)
 - ECS
+- ECR
 - Lambda
 - Cloud Watch Alarm
 - Event Bridge
@@ -118,7 +119,32 @@ Para fazer o deploy podemos utilizar a extensão da propria IDE para agilizar o 
 
 ![image](https://github.com/thiagoalvesp/ElbAsgLambdaEcs/assets/10868308/bbf5af33-c27d-4f90-84a1-466037b9431c)
 
- 
+### Deploy Imagem Docker no ECR
+
+Para subir a imagem no ECR precisamos previamente construir nossa imagem localmente para isso utilizamos esse Dockerfile
+```Dockerfile
+FROM golang:1.20-alpine
+WORKDIR /code
+COPY go.mod .
+COPY go.sum .
+RUN go mod download
+COPY . .
+RUN go build -o ./out/dist
+CMD ./out/dist
+```
+
+Depois podemos utilizar o AWS CLI para fazer o push 
+
+```bash
+#login no ECR utilizando as credencias do cli
+aws ecr get-login-password --region sa-east-1 | docker login --username AWS --password-stdin 281303628498.dkr.ecr.sa-east-1.amazonaws.com
+#build da imagem
+docker build -t golangapppbangpong .
+#tag antes do push
+docker tag golangapppbangpong:latest 281303628498.dkr.ecr.sa-east-1.amazonaws.com/golangapppbangpong:latest
+#push para o ECR
+docker push 281303628498.dkr.ecr.sa-east-1.amazonaws.com/golangapppbangpong:latest
+``` 
 
 ### Conclusão
 
