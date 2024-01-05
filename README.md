@@ -256,6 +256,9 @@ Como criamos o ALB junto com o ECS, agora precisamos criar um target group para 
 
 Nesse ponto a load balancer vai direcionar as requisições para lambda por conta do peso.
 
+![image](https://github.com/thiagoalvesp/ElbAsgLambdaEcs/assets/10868308/fd51dbf2-ec36-43b0-81d8-26636d0a9bb4)
+
+
 O peso funciona da seguinte forma, quando estiver 0 o load balancer vai ignorar aquele target group, se ambos estiverem com 1 as requisições serão dividas 50%/50%.
 
 ### Configuração Cloud Watch Alarm
@@ -382,6 +385,35 @@ def lambda_handler(event, context):
 ```
 
 Para o estudo utilizamos somente um evento porém é recomendado criar mais eventos e dividir a responsabilidade.
+
+### Configuracão Event Bridge
+
+Configuramos Event Bridge para toda vez que o status do Alarm mudar ativar a lambda de provisionamento porém filtrando os status ALARM e OK para não capturar status indesejados.
+![image](https://github.com/thiagoalvesp/ElbAsgLambdaEcs/assets/10868308/6a49fd3b-3e32-4ee9-9310-fd329023fbbf)
+
+Pattern
+```json
+{
+    "source": ["aws.cloudwatch"],
+    "detail-type": ["CloudWatch Alarm State Change"],
+    "detail": {"state": {"value": ["OK","ALARM"]}}
+  }
+```
+
+
+### Teste no Jmeter
+
+Para utilizar o Jmeter precisamos do java instalado no SO e fazer o download no site https://jmeter.apache.org/download_jmeter.cgi.
+
+1 - Configurar o Plano de teste
+2 - Configurar as requisições HTTP
+3 - Ver Resultados em Tabela
+4 - Gráfico Agregado
+
+![image](https://github.com/thiagoalvesp/ElbAsgLambdaEcs/assets/10868308/5c73dcf8-0074-4855-a338-6bd397369237)
+
+![image](https://github.com/thiagoalvesp/ElbAsgLambdaEcs/assets/10868308/7859a31b-49e1-40ac-add2-2907dd6376e7)
+
 
 ### Conclusão
 
