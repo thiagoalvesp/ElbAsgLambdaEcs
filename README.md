@@ -405,10 +405,10 @@ Pattern
 
 Para utilizar o Jmeter precisamos do java instalado no SO e fazer o download no site https://jmeter.apache.org/download_jmeter.cgi.
 
-1 - Configurar o Plano de teste
-2 - Configurar as requisições HTTP
-3 - Ver Resultados em Tabela
-4 - Gráfico Agregado
+- 1 Configurar o Plano de teste
+- 2 Configurar as requisições HTTP
+- 3 Ver Resultados em Tabela
+- 4 Gráfico Agregado
 
 ![image](https://github.com/thiagoalvesp/ElbAsgLambdaEcs/assets/10868308/5c73dcf8-0074-4855-a338-6bd397369237)
 
