@@ -4,7 +4,6 @@ O que você vai encontrar nesse material:
 - Objetivo
 - Desenho de Solução
 - Componentes necessários na AWS
-
 - Código da aplicação
 - Deploy Lambda
 - Deploy Imagem Docker
@@ -37,6 +36,10 @@ Para essa prova de conceito é necessário:
 - Python
 
 ### Código da aplicação
+
+O código foi customizado para rodar tanto em servidores web tradicionais (containers) quanto em ambiente AWS Lambda, para isso utilizamos o adapter aws-lambda-go-api-proxy e o gin com framework para cria as rotas de API.
+Utilizamos a variavel de ambiente AWS_LAMBDA_RUNTIME_API para determinar se a aplicação está rodando em lambdas ou ambiente de container.
+
 
 ```go
 func main() {
@@ -109,8 +112,13 @@ func main() {
 }
 ````
 
----
+### Deploy Lambda
 
+Para fazer o deploy podemos utilizar a extensão da propria IDE para agilizar o processo.
+
+![image](https://github.com/thiagoalvesp/ElbAsgLambdaEcs/assets/10868308/bbf5af33-c27d-4f90-84a1-466037b9431c)
+
+ 
 
 ### Conclusão
 
