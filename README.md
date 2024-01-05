@@ -152,7 +152,7 @@ Para essa prova de conceito utilizamos o provedor fargate para subir nosso workl
 
 ![image](https://github.com/thiagoalvesp/ElbAsgLambdaEcs/assets/10868308/46d6c2eb-0373-4142-9f3c-f03ecf048df2)
 
-Segundo passo é criar uma definição de tarefa. Podemos utilizar a console da aws ou subir um json com o do exemplo abaixo.
+Segundo passo é criar uma definição de tarefa. Podemos utilizar a console da aws ou subir um json como o do exemplo abaixo.
 
 ```json
 {
@@ -240,7 +240,12 @@ Segundo passo é criar uma definição de tarefa. Podemos utilizar a console da 
     "tags": []
 }
 ```
+Terceiro passo é criar o serviço para instanciar nossa aplicação no ECS.
+Recomendo para criar o Aplication Load Balancer junto com o serviço pois a AWS gerencia o Target Group de forma automatica, se for criado separado precisamos fazer a gestão do ip para cada nova tarefa que é criada.
 
+![image](https://github.com/thiagoalvesp/ElbAsgLambdaEcs/assets/10868308/d661ba0e-52a4-4bd1-972f-414504b72ada)
+
+Nesse estágio estamos com a aplicação publicada na lambda e no ECS, porém o ecs não possui containers rodando pois colocamos as Tarefas desejadas como 0.
 
 ### Conclusão
 
