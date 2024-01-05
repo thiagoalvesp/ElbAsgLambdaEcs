@@ -10,8 +10,8 @@ O que você vai encontrar nesse material:
 - Configuração ECS
 - Configuração ALB para Lambda
 - Configuração Cloud Watch Alarm
+- Criacão da lambda para provisionamento do ECS e ajuste no ALB
 - Configuracão Event Bridge
-- Criacão da lambda para provisionamento e ajuste no ALB
 - Teste no Jmeter
 - Conclusão
 - Fontes
@@ -256,9 +256,15 @@ Como criamos o ALB junto com o ECS, agora precisamos criar um target group para 
 
 Nesse ponto a load balancer vai direcionar as requisições para lambda por conta do peso.
 
-O peso funciona da seguinte forma quando estiver 0 o load balancer vai ignorar aquele target group se ambos estiverem com 1 as requisições serão dividas 50%/50%.
+O peso funciona da seguinte forma, quando estiver 0 o load balancer vai ignorar aquele target group, se ambos estiverem com 1 as requisições serão dividas 50%/50%.
 
 ### Configuração Cloud Watch Alarm
+
+![image](https://github.com/thiagoalvesp/ElbAsgLambdaEcs/assets/10868308/2df7ef9c-b5ed-4c29-864b-bc262e0d07ef)
+
+Para esse estudo utilizamos a métrica ConcurrentExecutions com valor maximo de 2 para forçar o alarm ativar.
+
+### Criacão da lambda para provisionamento do ECS e ajuste no ALB
 
 
 ### Conclusão
