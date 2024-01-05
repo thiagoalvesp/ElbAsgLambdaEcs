@@ -145,6 +145,102 @@ docker tag golangapppbangpong:latest 281303628498.dkr.ecr.sa-east-1.amazonaws.co
 #push para o ECR
 docker push 281303628498.dkr.ecr.sa-east-1.amazonaws.com/golangapppbangpong:latest
 ``` 
+### Configuração ECS
+
+Primeiro precisamos criar o cluster e esse passo não tem segredo utilizando a console da aws.
+Para essa prova de conceito utilizamos o provedor fargate para subir nosso workload.
+
+![image](https://github.com/thiagoalvesp/ElbAsgLambdaEcs/assets/10868308/46d6c2eb-0373-4142-9f3c-f03ecf048df2)
+
+Segundo passo é criar uma definição de tarefa. Podemos utilizar a console da aws ou subir um json com o do exemplo abaixo.
+
+```json
+{
+    "taskDefinitionArn": "arn:aws:ecs:sa-east-1:281303628498:task-definition/golangapptaskdefinition:1",
+    "containerDefinitions": [
+        {
+            "name": "goapp",
+            "image": "281303628498.dkr.ecr.sa-east-1.amazonaws.com/golangapppbangpong",
+            "cpu": 0,
+            "portMappings": [
+                {
+                    "name": "goapp-8080-tcp",
+                    "containerPort": 8080,
+                    "hostPort": 8080,
+                    "protocol": "tcp",
+                    "appProtocol": "http"
+                }
+            ],
+            "essential": true,
+            "environment": [],
+            "environmentFiles": [],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "ulimits": [],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-create-group": "true",
+                    "awslogs-group": "/ecs/golangapptaskdefinition",
+                    "awslogs-region": "sa-east-1",
+                    "awslogs-stream-prefix": "ecs"
+                },
+                "secretOptions": []
+            }
+        }
+    ],
+    "family": "golangapptaskdefinition",
+    "executionRoleArn": "arn:aws:iam::281303628498:role/ecsTaskExecutionRole",
+    "networkMode": "awsvpc",
+    "revision": 1,
+    "volumes": [],
+    "status": "ACTIVE",
+    "requiresAttributes": [
+        {
+            "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
+        },
+        {
+            "name": "ecs.capability.execution-role-awslogs"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.ecr-auth"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
+        },
+        {
+            "name": "ecs.capability.execution-role-ecr-pull"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
+        },
+        {
+            "name": "ecs.capability.task-eni"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.29"
+        }
+    ],
+    "placementConstraints": [],
+    "compatibilities": [
+        "EC2",
+        "FARGATE"
+    ],
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "cpu": "256",
+    "memory": "512",
+    "runtimePlatform": {
+        "cpuArchitecture": "X86_64",
+        "operatingSystemFamily": "LINUX"
+    },
+    "registeredAt": "2023-12-21T00:14:24.574Z",
+    "registeredBy": "arn:aws:iam::281303628498:root",
+    "tags": []
+}
+```
+
 
 ### Conclusão
 
