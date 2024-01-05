@@ -266,6 +266,122 @@ Para esse estudo utilizamos a métrica ConcurrentExecutions com valor maximo de 
 
 ### Criacão da lambda para provisionamento do ECS e ajuste no ALB
 
+Essa Lambda tem a responsabilidade de subir o ECS e direcionar a requisicões para o target group do ECS.
+
+Lógica
+```
+IF State is Alarm
+	ScaleUp DesiredCount to ??? 
+	Change weight of target group lambda to 0 and target group ecs to 1
+
+IF State is OK and PreviousState is ALARM
+	Change weight of target group lambda to 1 and target group ecs to 0
+	ScaleUp DesiredCount to 0
+```
+
+Código
+```python
+import json
+import boto3
+
+#somente para efeitos de poc o ideal seria mapear os eventos separadamente adicionar um para quando o ecs ligar
+
+# ecs config - pegar do env
+ECSclient = boto3.client('ecs')
+cluster = 'xxxx'
+service = 'xxxx'
+# elb listener config 
+ELBclient = boto3.client('elbv2')  # Criando cliente para o Elastic Load Balancing
+listenerArn = 'xxxx'
+port = 80
+targetGroupLambda = 'xxxx'
+targetGroupECS = 'xxxx'
+
+
+def lambda_handler(event, context):
+    
+    
+    previousState = event['detail']['previousState']['value']
+    state = event['detail']['state']['value']
+    
+    print(state)
+    
+    if state == 'ALARM' :
+        
+        #provisiono uma instancia do ecs fargate para apoiar o app lambda
+        response = ECSclient.update_service(cluster=cluster, service=service, desiredCount=1)
+        print(response)
+        
+        #Espero o Ecs ligar
+        container_RUNNING = False
+        while container_RUNNING == False:
+            
+            response = ECSclient.list_tasks(cluster='AlbECSCluster')
+            taskarns = response['taskArns']
+            if len(taskarns) > 0 :
+                describe_tasks_response = ECSclient.describe_tasks(cluster='AlbECSCluster',tasks=taskarns)
+                
+                for t in describe_tasks_response['tasks']:
+                    for c in t['containers']:
+                        if c['lastStatus'] == 'RUNNING' : 
+                            print('container RUNNING')
+                            container_RUNNING = True
+                            
+            
+                if container_RUNNING :
+                    # Definindo as novas regras para o listener
+                    new_rules = [
+                        {
+                            'Type' : 'forward',
+                            'ForwardConfig': {
+                                'TargetGroups': [
+                                    {
+                                        'TargetGroupArn': targetGroupLambda,
+                                        'Weight': 0
+                                    },
+                                    {
+                                        'TargetGroupArn': targetGroupECS,
+                                        'Weight': 1
+                                    }]}
+                        }
+                    ]
+            
+            
+                    # Modificando as regras do listener do ALB
+                    response = ELBclient.modify_listener(ListenerArn=listenerArn, DefaultActions=new_rules)
+                    print(response)
+                
+        
+    if state == 'OK' and previousState != 'OK'  :
+        
+        # Definindo as novas regras para o listener
+        new_rules = [
+            {
+                'Type' : 'forward',
+                'ForwardConfig': {
+                    'TargetGroups': [
+                        {
+                            'TargetGroupArn': targetGroupLambda,
+                            'Weight': 1
+                        },
+                        {
+                            'TargetGroupArn': targetGroupECS,
+                            'Weight': 0
+                        }]}
+            }
+        ]
+
+
+        # Modificando as regras do listener do ALB
+        response = ELBclient.modify_listener(ListenerArn=listenerArn, DefaultActions=new_rules)
+        print(response)
+
+        #Removo a instancia do ecs
+        response = ECSclient.update_service(cluster=cluster, service=service, desiredCount=0)
+        print(response)
+```
+
+Para o estudo utilizamos somente um evento porém é recomendado criar mais eventos e dividir a responsabilidade.
 
 ### Conclusão
 
